@@ -25,5 +25,9 @@
     "postinstall": "npm run build"
   },
   "proxy": "http://localhost:9000",
-  "homepage": "./"
+  "homepage": "./",
+  "engines": {
+    "node": "6.7.0",
+    "npm": "3.10.9"
+  }
 }
