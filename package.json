@@ -25,5 +25,6 @@
     "eject": "react-scripts eject",
     "postinstall": "npm run build"
   },
-  "proxy": "http://localhost:9002"
+  "proxy": "http://localhost:9000",
+  "homepage" : "./"
 }
