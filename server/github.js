@@ -84,9 +84,9 @@ var getSuggestionsAndVoteTotals = function(){
 // Doesn't currently check to see if user voted previously
 // (needs to be added)
 
-var voteForSuggestions = function(body, username){
-    var issueNum = body.number;
-    username = username || 'Unknown'
+var voteForSuggestions = function(req){
+    var issueNum = req.number;
+    var username = req.username || 'Unknown'
     var body = "+1 " + username;
     auth();
     return github.issues.createComment( {
@@ -98,9 +98,9 @@ var voteForSuggestions = function(body, username){
 }
 
 
-var createSuggestion = function(req, username){
+var createSuggestion = function(req){
     auth();
-    username = username || 'Unknown';
+    var username = req.username || 'Unknown';
     var body = req.body;
     var title = req.title + " \n " + username;
     var labels = req.labels;

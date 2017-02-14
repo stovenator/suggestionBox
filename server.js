@@ -24,21 +24,24 @@ app.use(function(req, res, next){
 });
 
 
-app.get('/api/test', function(req, res){
-  var vals = JSON.stringify(req.headers);
-  
-  res.status(200).send(vals);
+app.post('/api/test', function(req, res){
+  var body = req.body;
+  body['jwt-un'] = req.headers['jwt-un'];
+  res.status(200).send(body);
 })
 
 app.get('/api/all', function (req, res) {
     github.getSuggestionsAndVoteTotals().then(res.send.bind(res))
 });
 app.post('/api/vote', function (req, res) {
-  console.log("!!!!!!!!!!!!!!!!!!!!!", req.headers);
-  github.voteForSuggestions(req.body, req.headers['jwt-un']).then(res.send.bind(res));
+  var body = req.body;
+  body['jwt-un'] = req.headers['jwt-un'];
+  github.voteForSuggestions(body).then(res.send.bind(res));
 });
 app.post('/api/create', function (req, res) {
-  github.createSuggestion(req.body, req.headers['jwt-un']).then(res.send.bind(res));
+  var body = req.body;
+  body['jwt-un'] = req.headers['jwt-un'];
+  github.createSuggestion(body).then(res.send.bind(res));
 });
 app.get('/api/labels', function (req, res) {
   github.getLabels(req.body).then(res.send.bind(res));
