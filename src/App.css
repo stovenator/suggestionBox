@@ -22,3 +22,21 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.box{
+    background-color: #fff;
+    border-color: #ddd;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+    margin-bottom: 10px;
+}
+
+.go-right{
+  margin-left: 300px;
+}
+
+.label-container{
+  padding: 2px 0px;
+}
