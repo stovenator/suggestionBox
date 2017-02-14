@@ -9,7 +9,7 @@ export default class getData {
     }
   };
   static get(location) {
-    return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, Object.assign(this.FETCH_OPTIONS, {
+    return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, Object.assign({}, this.FETCH_OPTIONS, {
         method: 'GET'
       }))
       .then(response => response.json())
@@ -24,7 +24,7 @@ export default class getData {
       });
   }
   static post(location, data) {
-    return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, Object.assign(this.FETCH_OPTIONS, {
+    return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, Object.assign({}, this.FETCH_OPTIONS, {
         method: 'POST',
         body: JSON.stringify(data)
       }))
