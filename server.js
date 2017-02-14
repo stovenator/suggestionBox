@@ -28,21 +28,20 @@ app.post('/api/test', function(req, res) {
   var body = req.body;
   body.username = req.headers['jwt-un'];
   res.status(200).send(body);
-})
+});
 
 app.get('/api/all', function(req, res) {
-  github.getSuggestionsAndVoteTotals().then(res.send.bind(res))
+  github.getSuggestionsAndVoteTotals().then(res.send.bind(res));
 });
-app.post('/api/vote', function(req, res) {
-  console.log("VOTE: ", req.headers);
-  try {
-      const username = JSON.parse(req.headers['jwt-un']);
-    } catch(e) {
-        username = 'Unknown';
-    }
-  const mergedBody = Object.assign(req.body, { username });
-  github.voteForSuggestions(mergedBody).then(res.send.bind(res));
-});
+
+app.post('/api/vote', (req, res) => Promise.resolve(JSON.parse(req.headers['jwt-un']))
+  .then(username => Object.assign(req.body, { username }))
+  .then(mergedBody => Promise.all([
+    github.voteForSuggestions(mergedBody),
+    res.send.bind(res)
+  ]))
+  .catch(error => res.status(503).json({ error })));
+
 app.post('/api/create', function(req, res) {
   const username = JSON.parse(req.headers['jwt-un']);
   const mergedBody = Object.assign(req.body, { username });
