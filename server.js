@@ -24,12 +24,17 @@ app.use(function(req, res, next){
 });
 
 
+app.get('/api/test', function(req, res){
+  var vals = req.headers;
+  res.send("Header Vals", vals );
+})
 
 app.get('/api/all', function (req, res) {
     github.getSuggestionsAndVoteTotals().then(res.send.bind(res))
 });
 app.post('/api/vote', function (req, res) {
-  github.voteForSuggestions(req.body).then(res, req.headers['jwt-un'].send.bind(res));
+  console.log("!!!!!!!!!!!!!!!!!!!!!", req.headers);
+  github.voteForSuggestions(req.body, req.headers['jwt-un']).then(res.send.bind(res));
 });
 app.post('/api/create', function (req, res) {
   github.createSuggestion(req.body, req.headers['jwt-un']).then(res.send.bind(res));
