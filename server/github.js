@@ -85,6 +85,7 @@ var getSuggestionsAndVoteTotals = function(){
 // (needs to be added)
 
 var voteForSuggestions = function(req){
+    console.log("REQ: ", req);
     var issueNum = req.number;
     var username = req.username || 'Unknown'
     var body = "+1 " + username;
