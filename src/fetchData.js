@@ -9,14 +9,10 @@ export default class getData {
         }
     };
     static get(location) {
-        let headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        };
-        return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, {
+        return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, Object.assign(FETCH_OPTIONS, {
             method: 'GET',
             headers
-        })
+        }))
         .then(response => {
             return response.json()
         })
@@ -28,15 +24,10 @@ export default class getData {
         });
     }
     static post(location, data ){
-        let headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        };
-        return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, {
+        return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, Object.assign(FETCH_OPTIONS, {
             method: 'POST',
-            headers,
             body: JSON.stringify(data)
-        })
+        }))
         .then(response => {
             return response.json()
         })
