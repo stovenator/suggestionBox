@@ -2,8 +2,7 @@
   "name": "suggestionBox",
   "version": "0.1.0",
   "private": true,
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "bluebird": "3.4.7",
     "body-parser": "1.16.1",
@@ -26,5 +25,5 @@
     "postinstall": "npm run build"
   },
   "proxy": "http://localhost:9000",
-  "homepage" : "./"
+  "homepage": "./"
 }

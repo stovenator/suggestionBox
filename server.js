@@ -29,10 +29,10 @@ app.get('/api/all', function (req, res) {
     github.getSuggestionsAndVoteTotals().then(res.send.bind(res))
 });
 app.post('/api/vote', function (req, res) {
-  github.voteForSuggestions(req.body).then(res.send.bind(res));
+  github.voteForSuggestions(req.body).then(res, req.headers['jwt-un'].send.bind(res));
 });
 app.post('/api/create', function (req, res) {
-  github.createSuggestion(req.body).then(res.send.bind(res));
+  github.createSuggestion(req.body, req.headers['jwt-un']).then(res.send.bind(res));
 });
 app.get('/api/labels', function (req, res) {
   github.getLabels(req.body).then(res.send.bind(res));
