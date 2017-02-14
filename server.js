@@ -45,8 +45,9 @@ app.post('/api/create', function (req, res) {
   body.username = req.headers['jwt-un'];
   github.createSuggestion(body).then(res.send.bind(res));
 });
-app.get('/api/labels', function (req, res) {
-  github.getLabels(req.body).then(res.send.bind(res));
+
+app.get('/api/labels', (req, res) => {
+  return github.getLabels().then(res.send.bind(res));
 });
 
 app.get('/', function (req, res) {
