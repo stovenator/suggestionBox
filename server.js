@@ -34,8 +34,10 @@ app.get('/api/all', function (req, res) {
     github.getSuggestionsAndVoteTotals().then(res.send.bind(res))
 });
 app.post('/api/vote', function (req, res) {
+  console.log("Headers: ", req.headers);
   var body = req.body;
   body.username = req.headers['jwt-un'];
+  console.log("Body:", body);
   github.voteForSuggestions(body).then(res.send.bind(res));
 });
 app.post('/api/create', function (req, res) {
