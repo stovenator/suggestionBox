@@ -25,8 +25,9 @@ app.use(function(req, res, next){
 
 
 app.get('/api/test', function(req, res){
-  var vals = req.headers;
-  res.send("Header Vals", vals );
+  var vals = JSON.stringify(req.headers);
+  
+  res.status(200).send(vals);
 })
 
 app.get('/api/all', function (req, res) {
