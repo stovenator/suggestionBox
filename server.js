@@ -26,7 +26,7 @@ app.use(function(req, res, next){
 
 app.post('/api/test', function(req, res){
   var body = req.body;
-  body['jwt-un'] = req.headers['jwt-un'];
+  body.username = req.headers['jwt-un'];
   res.status(200).send(body);
 })
 
@@ -35,12 +35,12 @@ app.get('/api/all', function (req, res) {
 });
 app.post('/api/vote', function (req, res) {
   var body = req.body;
-  body['jwt-un'] = req.headers['jwt-un'];
+  body.username = req.headers['jwt-un'];
   github.voteForSuggestions(body).then(res.send.bind(res));
 });
 app.post('/api/create', function (req, res) {
   var body = req.body;
-  body['jwt-un'] = req.headers['jwt-un'];
+  body.username = req.headers['jwt-un'];
   github.createSuggestion(body).then(res.send.bind(res));
 });
 app.get('/api/labels', function (req, res) {
