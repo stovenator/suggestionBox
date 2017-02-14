@@ -103,7 +103,7 @@ var createSuggestion = function(req) {
   auth();
   var username = req.username || 'Unknown';
   var body = req.body;
-  var title = req.title + " \n " + username;
+  var title = username + '  -  ' + req.title;
   var labels = req.labels;
 
   return github.issues.create({

@@ -24,6 +24,11 @@ export default class getData {
       });
   }
   static post(location, data) {
+    const options = Object.assign({}, this.FETCH_OPTIONS, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", options);
     return fetch(`${process.env.REACT_APP_SERVER}/api/${location}`, Object.assign({}, this.FETCH_OPTIONS, {
         method: 'POST',
         body: JSON.stringify(data)

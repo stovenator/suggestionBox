@@ -34,7 +34,11 @@ app.get('/api/all', function(req, res) {
   github.getSuggestionsAndVoteTotals().then(res.send.bind(res))
 });
 app.post('/api/vote', function(req, res) {
-  const username = JSON.parse(req.headers['jwt-un']);
+  try {
+      const username = JSON.parse(req.headers['jwt-un']);
+    } catch(e) {
+        username = 'Unknown';
+    }
   const mergedBody = Object.assign(req.body, { username });
   github.voteForSuggestions(mergedBody).then(res.send.bind(res));
 });
