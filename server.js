@@ -34,6 +34,7 @@ app.get('/api/all', function(req, res) {
   github.getSuggestionsAndVoteTotals().then(res.send.bind(res))
 });
 app.post('/api/vote', function(req, res) {
+  console.log("VOTE: ", req.headers);
   try {
       const username = JSON.parse(req.headers['jwt-un']);
     } catch(e) {
