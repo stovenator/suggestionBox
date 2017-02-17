@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Navbar, Nav, NavItem, Jumbotron, Button, FormGroup, FormControl, ControlLabel, Radio , Panel, Badge, Modal} from 'react-bootstrap';
+import { Grid, Navbar, Nav, NavItem, Jumbotron, Button, FormGroup, FormControl, ControlLabel, Radio , Panel, Badge, Modal, Glyphicon} from 'react-bootstrap';
 import fetchData from './fetchData';
 import './App.css';
 import _ from 'lodash';
@@ -75,11 +75,7 @@ class AddNewSuggestion extends Component {
       myLength = 1;
     }
     if (myLength === 0) return 'error'
-
-    if (this.state.makesMoney === 2 ) return 'success';
-    else if (this.state.makesMoney === 1 ) return 'success';
-    else if (this.state.makesMoney === 0 ) return 'error';
-    else return 'error';
+    return 'success';
   }
 
   handleChange(e) {
@@ -133,10 +129,18 @@ class AddNewSuggestion extends Component {
   }
 
   render(){
+    var myControlLabel = ()=> { 
+      if (this.state.makesMoney === 0){
+        return(<ControlLabel>Explain why this is beneficial to GLG, when it does not make or save the company money.</ControlLabel>)
+      }
+      else{
+        return(<ControlLabel>Explain how this will {this.state.makesMoney === 2 ? 'save' : 'make'} the company money:</ControlLabel>)
+      }
+    };
     return(
          <form>
+          <ControlLabel>Your Suggestion:</ControlLabel>
           <FormGroup controlId="formBasicText" validationState={this.getValidationState('suggestion')} >
-            <ControlLabel>Your Suggestion:</ControlLabel>
             <FormControl
               type="text"
               value={this.state.suggestion}
@@ -144,7 +148,8 @@ class AddNewSuggestion extends Component {
               onChange={this.handleChange}
             />
           </FormGroup>
-           <FormGroup >
+          <ControlLabel>Benefit to GLG:</ControlLabel>
+          <FormGroup >
               <Radio inline name='radioGroup' value='1' checked={this.state.makesMoney === 1}  onChange={this.handleRadioChange}>
                 Makes Money
               </Radio>
@@ -155,8 +160,8 @@ class AddNewSuggestion extends Component {
                 Other
               </Radio>
           </FormGroup>
-          <FormGroup controlId="explain" validationState={this.getValidationState('explanation')} className={this.state.makesMoney === 0 ? 'hide' : ''}>
-            <ControlLabel>Explain how this will {this.state.makesMoney === 2 ? 'save' : 'make'} the company money:</ControlLabel>
+          {myControlLabel()}
+          <FormGroup controlId="explain" validationState={this.getValidationState('explanation')} >
             <FormControl
               type="text"
               value={this.state.explanation}
@@ -164,7 +169,7 @@ class AddNewSuggestion extends Component {
               onChange={this.handleExplainChange}
             />
           </FormGroup>
-          <div className={this.state.makesMoney === 0 ? 'hide' : ''}>
+          <div>
             <LabelBlock labels={this.state.labels} selectedLabels={this.state.selectedLabels} setLabels={this.setLabels} selectLabel={this.selectLabel} />
             
             <p>
@@ -212,7 +217,8 @@ class LabelBlock extends Component {
       })
     return(
       <grid> 
-        <h3>Apply Labels</h3>
+        <ControlLabel>Apply Labels</ControlLabel>
+        <p> Pick any labels that apply to this suggestion.</p>
         <div className='box'>
           {labelButtons}
         </div>
@@ -262,6 +268,7 @@ class ViewAll extends Component {
     var myData = _.cloneDeep(this.state.allSuggestions);
     var indexNum = _.findIndex(myData, {number: issueNum});
     myData[indexNum].voteTotal += 1;
+    myData[indexNum].voted = 1;
     this.setState({
       allSuggestions: myData,
     })
@@ -275,13 +282,20 @@ class ViewAll extends Component {
       var title = item.title;
       var body = item.body;
       var voteCount = item.voteTotal;
-      return (
-          <Panel header={title} bsStyle="primary" key={item.number}>
-            
-            
-            {body} <Button bsStyle="primary" className="pull-right" onClick={this.voteForIssue.bind(this, item.number)} >Vote <Badge>+{voteCount}</Badge></Button>
-          </Panel>
-      )
+      if (item.voted === 0){
+        return (
+            <Panel header={title} bsStyle="primary" key={item.number}>
+              {body} <Button bsStyle="primary" className="pull-right" onClick={this.voteForIssue.bind(this, item.number)} >Vote <Badge><Glyphicon glyph='plus-sign' /> {voteCount}</Badge></Button>
+            </Panel>
+        )
+      }
+      else{
+        return (
+            <Panel header={title} bsStyle="primary" key={item.number}>
+              {body} <Button bsStyle="primary" className="pull-right"><Badge><Glyphicon glyph='ok' /> {voteCount}</Badge></Button>
+            </Panel>
+        )
+      }
     })
 
     return(

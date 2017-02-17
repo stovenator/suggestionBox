@@ -57,7 +57,7 @@ var getCommentsForIssue = function(issueNum) {
 
 }
 
-var getSuggestionsAndVoteTotals = function() {
+var getSuggestionsAndVoteTotals = function(username) {
   var getComments = [];
   return getAllSuggestions().then((suggestions) => {
     for (var i = 0; i < suggestions.length; i++) {
@@ -66,10 +66,14 @@ var getSuggestionsAndVoteTotals = function() {
     return Promise.all(getComments).then((comments) => {
       for (var i = 0; i < suggestions.length; i++) {
         suggestions[i].voteTotal = 0;
+        suggestions[i].voted= 0;
         if (comments[i] && comments[i].length > 0) {
           for (var j = 0; j < comments[i].length; j++) {
             if (comments[i][j].body.indexOf('+1') === 0) {
               suggestions[i].voteTotal += 1;
+            }
+            if (comments[i][j].body === '+1 ' + username){
+              suggestions[i].voted = 1;
             }
           }
         }
@@ -85,7 +89,6 @@ var getSuggestionsAndVoteTotals = function() {
 // (needs to be added)
 
 var voteForSuggestions = function(req) {
-  console.log("REQ: ", req);
   var issueNum = req.number;
   var username = req.username || 'Unknown'
   var body = "+1 " + username;
