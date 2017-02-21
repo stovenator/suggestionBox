@@ -163,7 +163,7 @@ class AddNewSuggestion extends Component {
           {myControlLabel()}
           <FormGroup controlId="explain" validationState={this.getValidationState('explanation')} >
             <FormControl
-              type="text"
+              componentClass="textarea"
               value={this.state.explanation}
               placeholder="Explanation"
               onChange={this.handleExplainChange}
@@ -280,19 +280,24 @@ class ViewAll extends Component {
   render(){
     var displaySuggestions = this.state.allSuggestions.map((item)=> {
       var title = item.title;
-      var body = item.body;
+      var body = item.body.split('\n').map((bodyItem, index) => {
+
+        return(index===0 ? bodyItem : [<br />, bodyItem]);
+      });
       var voteCount = item.voteTotal;
       if (item.voted === 0){
         return (
             <Panel header={title} bsStyle="primary" key={item.number}>
-              {body} <Button bsStyle="primary" className="pull-right" onClick={this.voteForIssue.bind(this, item.number)} >Vote <Badge><Glyphicon glyph='plus-sign' /> {voteCount}</Badge></Button>
+               <Button bsStyle="primary" className="pull-right" onClick={this.voteForIssue.bind(this, item.number)} >Vote <Badge><Glyphicon glyph='plus-sign' /> {voteCount}</Badge></Button>
+               {body}
             </Panel>
         )
       }
       else{
         return (
             <Panel header={title} bsStyle="primary" key={item.number}>
-              {body} <Button bsStyle="primary" className="pull-right"><Badge><Glyphicon glyph='ok' /> {voteCount}</Badge></Button>
+              <Button bsStyle="primary" className="pull-right"><Badge><Glyphicon glyph='ok' /> {voteCount}</Badge></Button>
+              {body}
             </Panel>
         )
       }
