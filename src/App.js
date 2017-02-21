@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Navbar, Nav, NavItem, Jumbotron, Button, FormGroup, FormControl, ControlLabel, Radio , Panel, Badge, Modal, Glyphicon} from 'react-bootstrap';
+import { Grid, Navbar, Nav, NavItem, Jumbotron, Button, FormGroup, FormControl, ControlLabel, Radio , Badge, Modal, Glyphicon} from 'react-bootstrap';
 import fetchData from './fetchData';
 import './App.css';
 import _ from 'lodash';
@@ -244,6 +244,30 @@ class ModalBlock extends Component {
 
 }
 
+class VoteButton extends Component {
+  constructor(props){
+    super(props);
+    this.voteForIssue = this.voteForIssue.bind(this);
+  }
+  voteForIssue(issueNum){
+    this.props.voteForIssue(issueNum);
+  } 
+  render(){
+    let button = null;
+    if (this.props.itemInfo.voted === 0){
+      button = <Button bsStyle="primary" className="pull-right" onClick={this.voteForIssue.bind(this, this.props.itemInfo.number)} >Vote <Badge><Glyphicon glyph='plus-sign' /> {this.props.voteCount}</Badge></Button>
+    }
+    else {
+      button = <Button bsStyle="primary" className="pull-right"><Badge><Glyphicon glyph='ok' /> {this.props.voteCount}</Badge></Button>
+    }
+    return(
+      <div>
+      {button}
+      </div>
+    )
+  }
+}
+
 class ViewAll extends Component {
   constructor(props){
     super(props);
@@ -263,6 +287,10 @@ class ViewAll extends Component {
         }
       });
   }
+  openInGithub(url){
+    var win = window.open(url, '_blank');
+    win.focus();
+  }
   voteForIssue(issueNum){
     fetchData.post('vote',{number: issueNum});
     var myData = _.cloneDeep(this.state.allSuggestions);
@@ -280,29 +308,21 @@ class ViewAll extends Component {
   render(){
     var displaySuggestions = this.state.allSuggestions.map((item)=> {
       var title = item.title;
+      var url = item.html_url;
       var body = item.body.split('\n').map((bodyItem, index) => {
-
         return(index===0 ? bodyItem : [<br />, bodyItem]);
       });
       var voteCount = item.voteTotal;
-      if (item.voted === 0){
-        return (
-            <Panel header={title} bsStyle="primary" key={item.number}>
-               <Button bsStyle="primary" className="pull-right" onClick={this.voteForIssue.bind(this, item.number)} >Vote <Badge><Glyphicon glyph='plus-sign' /> {voteCount}</Badge></Button>
-               {body}
-            </Panel>
-        )
-      }
-      else{
-        return (
-            <Panel header={title} bsStyle="primary" key={item.number}>
-              <Button bsStyle="primary" className="pull-right"><Badge><Glyphicon glyph='ok' /> {voteCount}</Badge></Button>
+      return (
+          <div className='panel panel-primary' key={item.number}> 
+            <div className='panel-heading'><a className='white-text' href={url} target='_blank'>{title}</a></div>
+            <div className='panel-body'>
+              <VoteButton itemInfo={item} voteForIssue={this.voteForIssue.bind(this)} voteCount={voteCount}/>
               {body}
-            </Panel>
-        )
-      }
+              </div>
+          </div>
+      )
     })
-
     return(
       <div>
         {displaySuggestions}
@@ -311,15 +331,15 @@ class ViewAll extends Component {
   }
 }
 
-  function bodyContent(viewState){
-    if (parseInt(viewState,10) === 1){
-      return <AddNewSuggestion />
-    }
-    else{
-      return <ViewAll />
-    }
-
+function bodyContent(viewState){
+  if (parseInt(viewState,10) === 1){
+    return <AddNewSuggestion />
   }
+  else{
+    return <ViewAll />
+  }
+
+}
 
 class App extends Component {
   constructor(props){
