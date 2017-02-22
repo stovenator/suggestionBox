@@ -12,7 +12,7 @@ class Header extends Component {
           <Grid>
             <Navbar.Header>
               <Navbar.Brand>
-                <a href="/">GLG Suggestion Box</a>
+                <a href="./">GLG Suggestion Box</a>
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
