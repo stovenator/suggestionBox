@@ -345,7 +345,7 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      viewState: 1
+      viewState: 2
     }
     this.handleTabSelect = this.handleTabSelect.bind(this);
   }
@@ -361,8 +361,8 @@ class App extends Component {
         <JTron />
         <Grid>
           <Nav bsStyle="tabs" activeKey={this.state.viewState} onSelect={this.handleTabSelect}>
-            <NavItem eventKey={1} value={1}>Add A Suggestion</NavItem>
             <NavItem eventKey={2} value={2}>See all Suggestions</NavItem>
+            <NavItem eventKey={1} value={1}>Add A Suggestion</NavItem>
           </Nav>
           {bodyContent(this.state.viewState)}
         </Grid>
