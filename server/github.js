@@ -19,7 +19,7 @@ var github = new GitHubApi({
   },
   Promise: require('bluebird'),
   followRedirects: false, // default: true; there's currently an issue with non-get redirects, so allow ability to disable follow-redirects
-  timeout: 5000
+  timeout: 20000
 });
 
 var auth = function() {

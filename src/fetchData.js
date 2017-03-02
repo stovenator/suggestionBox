@@ -3,6 +3,7 @@ export default class getData {
     method: 'GET',
     mode: 'cors',
     credentials: 'include',
+    timeout: 60,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -15,7 +16,7 @@ export default class getData {
       .then(response => response.json())
       .then(response => {
         if (response.error) {
-          throw new Error(response.error);
+          console.log("Error! ", response.error);
         }
         return response;
       })
