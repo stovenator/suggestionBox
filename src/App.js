@@ -312,7 +312,7 @@ class ViewAll extends Component {
     fetchData.get(url)
       .then(results =>  {
         if (results) {
-          var sorted = _.orderBy(results, ['voteTotal', 'number'], ['desc', 'asc']);
+          var sorted = _.orderBy(results, ['comments', 'number'], ['desc', 'asc']);
           this.setState({
             loading: false,
             allSuggestions: sorted,
