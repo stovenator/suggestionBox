@@ -30,9 +30,13 @@ app.post('/api/test', function(req, res) {
   res.status(200).send(body);
 });
 
-app.get('/api/all', (req, res) => Promise.resolve( 
+app.get('/api/all', (req, res) => Promise.resolve(
   (req.headers && req.headers['jwt-un']) ? JSON.parse(req.headers['jwt-un']) : 'Unknown')
-  .then(username => github.getSuggestionsAndVoteTotals(username))
+  .then(username => {
+    var labels = req.query && req.query.labels ? req.query.labels : null;
+    return { username: username, labels: labels};
+  })
+  .then(result => github.getSuggestionsAndVoteTotals(result.username, result.labels))
   .then(res.send.bind(res))
   .catch(error => res.status(200).json({ error })));
 
@@ -54,6 +58,14 @@ app.post('/api/create', (req, res) => Promise.resolve (
 
 app.get('/api/labels', (req, res) => {
   return github.getLabels().then(res.send.bind(res));
+});
+
+app.get('/api/labels/tags', (req, res) => {
+  return github.getTagLabels().then(res.send.bind(res));
+});
+
+app.get('/api/labels/categories', (req, res) => {
+  return github.getCategoryLabels().then(res.send.bind(res));
 });
 
 app.get('/', function(req, res) {

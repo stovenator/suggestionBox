@@ -1,5 +1,5 @@
 var http = require('http');
-require('dotenv').config()
+require('dotenv').config();
 
 var AUTH_TOKEN = process.env.REACT_APP_GITHUB_TOKEN;
 var apiServer = 'https://api.github.com';
@@ -7,6 +7,9 @@ var owner = process.env.REACT_APP_GITHUB_OWNER;
 var repo = process.env.REACT_APP_GITHUB_REPO;
 
 var GitHubApi = require("github");
+var _ = require('lodash');
+
+const LABEL_PREFIX_CATEGORY = "Category: ";
 
 var github = new GitHubApi({
   // optional
@@ -26,14 +29,17 @@ var auth = function() {
   github.authenticate({ type: "oauth", token: AUTH_TOKEN });
 };
 
-var getAllSuggestions = function() {
+var getAllSuggestions = function(labels) {
   auth();
-  return github.issues.getForRepo({
+  var options = {
     owner: owner,
     repo: repo,
     per_page: 100,
     page: 0
-  });
+  };
+  if (labels && labels.length > 0)
+    options.labels = labels;
+  return github.issues.getForRepo(options);
 };
 
 var getLabels = function() {
@@ -44,6 +50,20 @@ var getLabels = function() {
     per_page: 100,
     page: 0
   });
+};
+
+var getTagLabels = function() {
+  return getLabels()
+    .then((labels) => {
+      return _.reject(labels, (label) => { return label.name.startsWith(LABEL_PREFIX_CATEGORY);});
+    });
+}
+
+var getCategoryLabels = function () {
+  return getLabels()
+    .then((labels) => {
+      return _.filter(labels, (label) => { return label.name.startsWith(LABEL_PREFIX_CATEGORY);});
+    });
 };
 
 
@@ -57,9 +77,9 @@ var getCommentsForIssue = function(issueNum) {
 
 }
 
-var getSuggestionsAndVoteTotals = function(username) {
+var getSuggestionsAndVoteTotals = function(username, labels) {
   var getComments = [];
-  return getAllSuggestions().then((suggestions) => {
+  return getAllSuggestions(labels).then((suggestions) => {
     for (var i = 0; i < suggestions.length; i++) {
       getComments.push(getCommentsForIssue(suggestions[i].number));
     }
@@ -131,12 +151,13 @@ var addLabel = function(labelList) {
   });
 };
 
-
 module.exports = {
   createSuggestion,
   getAllSuggestions,
   getCommentsForIssue,
   getLabels,
+  getCategoryLabels,
+  getTagLabels,
   getSuggestionsAndVoteTotals,
-  voteForSuggestions,
+  voteForSuggestions
 }

@@ -44,3 +44,10 @@
 .white-text{
   color: #fff;
 }
+
+.filtered-by {
+    color: gray;
+    font-size: 12px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}

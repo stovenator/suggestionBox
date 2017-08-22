@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { Grid, Navbar, Nav, NavItem, Jumbotron, Button, FormGroup, FormControl, ControlLabel, Radio , Badge, Modal, Glyphicon} from 'react-bootstrap';
+import { Grid, Navbar, Nav, NavItem, MenuItem, NavDropdown, Jumbotron, Button, FormGroup, FormControl, ControlLabel, Radio , Badge, Modal, Glyphicon, HelpBlock } from 'react-bootstrap';
 import fetchData from './fetchData';
 import './App.css';
+import './loading.css';
 import _ from 'lodash';
 
+const LABEL_PREFIX_CATEGORY = "Category: ";
 
 class Header extends Component {
   render(){
@@ -43,6 +45,7 @@ class AddNewSuggestion extends Component {
       explanation: '',
       labels: [],
       selectedLabels: [],
+      category: "",
       showModal: false,
     }
     this.handleChange = this.handleChange.bind(this);
@@ -54,6 +57,8 @@ class AddNewSuggestion extends Component {
     this.openModal = this.openModal.bind(this);
     this.setLabels = this.setLabels.bind(this);
     this.selectLabel = this.selectLabel.bind(this);
+    this.onCategoryChanged = this.onCategoryChanged.bind(this);
+    this.isValid = this.isValid.bind(this);
   }
   getInitialState() {
     return {
@@ -71,11 +76,15 @@ class AddNewSuggestion extends Component {
     if (inType === 'explanation' && this.state.explanation.length > 10){
       myLength = 1;
     }
-    if (inType === 'both' && this.state.suggestion.length > 10 && this.state.explanation.length > 10){
+    if (inType === 'category' && this.state.category.length > 0) {
       myLength = 1;
     }
-    if (myLength === 0) return 'error'
+    if (myLength === 0) return 'error';
     return 'success';
+  }
+
+  isValid() {
+    return this.state.suggestion.length > 10 && this.state.explanation.length > 10 && this.state.category !== -1;
   }
 
   handleChange(e) {
@@ -87,15 +96,21 @@ class AddNewSuggestion extends Component {
   handleExplainChange(e){
     this.setState({explanation: e.target.value})
   }
+  onCategoryChanged(e) {
+    this.setState({category: e.target.value});
+  }
   createSuggestion(e){
     e.preventDefault();
-    fetchData.post('create',{body: this.state.explanation, title: this.state.suggestion, labels: this.state.selectedLabels})
+    var labels = Array.from(this.state.selectedLabels);
+    labels.push(this.state.category);
+    fetchData.post('create',{body: this.state.explanation, title: this.state.suggestion, labels: labels})
     .then(results => {
       this.setState({
         suggestion: '',
         makesMoney: 0,
         explanation: '',
         selectedLabels: [],
+        category: '',
         showModal: false,
       });
       this.openModal();
@@ -169,6 +184,18 @@ class AddNewSuggestion extends Component {
               onChange={this.handleExplainChange}
             />
           </FormGroup>
+          <ControlLabel>Category</ControlLabel>
+          <FormGroup controlId="category" validationState={this.getValidationState("category")}>
+            <FormControl componentClass="select" onChange={this.onCategoryChanged} value={this.state.category}>
+              <option key="" value="">Choose a category</option>
+              {
+                this.props.categories.map((cat) => {
+                  return <option key={cat.id} value={cat.name}>{cat.friendlyName}</option>
+                })
+              }
+            </FormControl>
+            <HelpBlock style={{"color": "gray"}}>Choose a category that most matches your suggestion</HelpBlock>
+          </FormGroup>
           <div>
             <LabelBlock labels={this.state.labels} selectedLabels={this.state.selectedLabels} setLabels={this.setLabels} selectLabel={this.selectLabel} />
             
@@ -176,7 +203,7 @@ class AddNewSuggestion extends Component {
               <Button
                 bsStyle="primary"
                 bsSize="large"
-                disabled={this.getValidationState('both') === 'error' }
+                disabled={!this.isValid() }
                 onClick={this.createSuggestion}
                 target="_blank">
                 Submit 
@@ -197,14 +224,14 @@ class LabelBlock extends Component {
       test: props.labels
     }
   }
-  getLabels(){
-    fetchData.get('labels')
+  getTags(){
+    fetchData.get('labels/tags')
     .then(results => {
       this.props.setLabels(results)
     })
   }
   componentDidMount(){
-    this.getLabels();
+    this.getTags();
   }
   render(){
     var labelButtons = this.props.labels.map((item, i) => {
@@ -217,8 +244,8 @@ class LabelBlock extends Component {
       })
     return(
       <grid> 
-        <ControlLabel>Apply Labels</ControlLabel>
-        <p> Pick any labels that apply to this suggestion.</p>
+        <ControlLabel>Apply Tags</ControlLabel>
+        <p> Pick any tag that apply to this suggestion.</p>
         <div className='box'>
           {labelButtons}
         </div>
@@ -273,15 +300,21 @@ class ViewAll extends Component {
     super(props);
     this.state ={
       myVal : '',
-      allSuggestions: []
+      allSuggestions: [],
+      loading: false
     }
   }
-  getAllSuggestions(){
-    fetchData.get('all')
+  getAllSuggestions(categoryFilter){
+    this.setState({loading: true});
+    var url = 'all';
+    if (categoryFilter && categoryFilter.length > 0)
+      url += `?labels=${encodeURI(categoryFilter)}`;
+    fetchData.get(url)
       .then(results =>  {
-        if (results && results.length ) {
-          var sorted = _.orderBy(results, ['voteTotal', 'number'], ['desc', 'asc']);
+        if (results) {
+          var sorted = _.orderBy(results, ['comments', 'number'], ['desc', 'asc']);
           this.setState({
+            loading: false,
             allSuggestions: sorted,
           })
         }
@@ -302,7 +335,11 @@ class ViewAll extends Component {
     })
   }
   componentDidMount(){
-    this.getAllSuggestions();
+    this.getAllSuggestions(this.props.categoryFilter);
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.getAllSuggestions(newProps.categoryFilter);
   }
 
   render(){
@@ -325,34 +362,58 @@ class ViewAll extends Component {
     })
     return(
       <div>
+        { this.state.loading ? <div className="loading">Loading&#8230;</div> :  null }
+        {
+          this.props.categoryFilter && this.props.categoryFilter.length > 0 &&
+          <div className="filtered-by">Filtered by: {this.props.categoryFilter}</div>
+        }
         {displaySuggestions}
+        {
+          this.state.allSuggestions && this.state.allSuggestions.length === 0 &&
+          <h3>No Suggestions Found. Maybe you should add one!</h3>
+        }
       </div>
     )
   }
-}
-
-function bodyContent(viewState){
-  if (parseInt(viewState,10) === 1){
-    return <AddNewSuggestion />
-  }
-  else{
-    return <ViewAll />
-  }
-
 }
 
 class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      viewState: 2
+      viewState: 2,
+      categories: []
     }
     this.handleTabSelect = this.handleTabSelect.bind(this);
+    this.getCategories = this.getCategories.bind(this);
+    this.bodyContent = this.bodyContent.bind(this);
+  }
+  componentWillMount() {
+    this.getCategories();
   }
   handleTabSelect(e){
     this.setState({
       viewState: e,
-    })
+    });
+  }
+  getCategories(){
+    fetchData.get('labels/categories')
+      .then(results => {
+        results.forEach((cat) => {
+          cat.friendlyName = cat.name.substring(LABEL_PREFIX_CATEGORY.length);
+        });
+        this.setState({categories: results});
+      });
+  }
+  bodyContent(){
+    var viewState = this.state.viewState || 2;
+    if (parseInt(viewState,10) === 1){
+      return <AddNewSuggestion categories={this.state.categories} />
+    }
+    else{
+      let category = viewState && isNaN(viewState) && viewState.indexOf('.') > -1 ? viewState.substr(viewState.indexOf('.') + 1) : "";
+      return <ViewAll categoryFilter={category} />
+    }
   }
   render() {
     return (
@@ -362,9 +423,16 @@ class App extends Component {
         <Grid>
           <Nav bsStyle="tabs" activeKey={this.state.viewState} onSelect={this.handleTabSelect}>
             <NavItem eventKey={2} value={2}>See all Suggestions</NavItem>
+            <NavDropdown eventKey={2} title="Suggestions by Category" id="nav-suggestion-category">
+              {
+                this.state.categories.map((cat) => {
+                  return <MenuItem key={cat.id} eventKey={"2." + cat.name}>{cat.friendlyName}</MenuItem>
+                })
+              }
+            </NavDropdown>
             <NavItem eventKey={1} value={1}>Add A Suggestion</NavItem>
           </Nav>
-          {bodyContent(this.state.viewState)}
+          {this.bodyContent()}
         </Grid>
         <Grid>
          
